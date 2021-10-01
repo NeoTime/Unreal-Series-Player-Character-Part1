@@ -153,7 +153,13 @@ void APunchKick01Character::AttackStart()
 {
 	Log(ELogLevel::INFO, __FUNCTION__);
 
-	PlayAnimMontage(MeleeFistAttackMontage, 1.f, FName("start_1"));
+	// generate a random number between 1 and 2
+	int MontageSectionIndex = rand() % 2 + 1;
+
+	// fstring animation section
+	FString MontageSection = "start_" + FString::FromInt(MontageSectionIndex);
+
+	PlayAnimMontage(MeleeFistAttackMontage, 1.f, FName(*MontageSection));
 }
 
 void APunchKick01Character::AttackEnd()
