@@ -40,6 +40,11 @@ class APunchKick01Character : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	// melee fist attack 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* MeleeFistAttackMontage;
+
 public:
 	APunchKick01Character();
 
@@ -80,10 +85,17 @@ protected:
 	/** Handler for when a touch input stops. */
 	void TouchStopped(ETouchIndex::Type FingerIndex, FVector Location);
 
+
 protected:
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
+
+	//  Triggered when player initiates attack
+	void AttackStart();
+
+	// Triggered when player stops attack
+	void AttackEnd();
 
 public:
 	/** Returns CameraBoom subobject **/

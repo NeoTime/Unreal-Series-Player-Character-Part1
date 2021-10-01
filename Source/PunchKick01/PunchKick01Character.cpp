@@ -47,6 +47,13 @@ APunchKick01Character::APunchKick01Character()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	// load animation montage
+	static ConstructorHelpers::FObjectFinder<UAnimMontage>MeleeFistAttackMontageObject(TEXT("AnimMontage'/Game/TUTORIAL_RESOURCES/Animations/MeleeFistAttackMontage.MeleeFistAttackMontage'"));
+	if (MeleeFistAttackMontageObject.Succeeded())
+	{
+		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -76,7 +83,14 @@ void APunchKick01Character::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	// VR headset functionality
 	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &APunchKick01Character::OnResetVR);
+
+	// attack Functionality
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APunchKick01Character::AttackStart);
+	PlayerInputComponent->BindAction("Attack", IE_Released, this, &APunchKick01Character::AttackEnd);
+
+
 }
+
 
 
 void APunchKick01Character::OnResetVR()
@@ -133,6 +147,18 @@ void APunchKick01Character::MoveRight(float Value)
 		// add movement in that direction
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void APunchKick01Character::AttackStart()
+{
+	Log(ELogLevel::INFO, __FUNCTION__);
+
+	PlayAnimMontage(MeleeFistAttackMontage, 1.f, FName("start_1"));
+}
+
+void APunchKick01Character::AttackEnd()
+{
+	Log(ELogLevel::INFO, __FUNCTION__);
 }
 
 void APunchKick01Character::Log(ELogLevel LogLevel, FString Message)
