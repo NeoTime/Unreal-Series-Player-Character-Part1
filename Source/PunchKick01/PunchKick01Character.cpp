@@ -54,6 +54,30 @@ APunchKick01Character::APunchKick01Character()
 	{
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
 	}
+
+	LeftFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFistCollisionBox"));
+	LeftFistCollisionBox->SetupAttachment(RootComponent);
+	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
+
+
+	RightFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFistCollisonBox"));
+	RightFistCollisionBox->SetupAttachment(RootComponent);
+	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+
+
+}
+
+
+void APunchKick01Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Attach collision componets to sockets based on transform definitions
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+
+	LeftFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "fist_l_collision");
+	RightFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "fist_r_collision");
+
 }
 
 //////////////////////////////////////////////////////////////////////////
