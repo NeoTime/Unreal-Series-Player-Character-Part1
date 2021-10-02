@@ -1,4 +1,4 @@
-// Copyright 1998-2018 Epic Games, Inc. All Rights Reserved.
+// Copyright 1998-2021 Epic Games, Inc. All Rights Reserved.
 
 #include "PunchKick01Character.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
@@ -58,11 +58,13 @@ APunchKick01Character::APunchKick01Character()
 	LeftFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFistCollisionBox"));
 	LeftFistCollisionBox->SetupAttachment(RootComponent);
 	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
+	LeftFistCollisionBox->SetNotifyRigidBodyCollision(false);
 
 
 	RightFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("RightFistCollisonBox"));
 	RightFistCollisionBox->SetupAttachment(RootComponent);
 	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+	RightFistCollisionBox->SetNotifyRigidBodyCollision(false);
 
 
 }
@@ -77,6 +79,17 @@ void APunchKick01Character::BeginPlay()
 
 	LeftFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "fist_l_collision");
 	RightFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "fist_r_collision");
+
+	LeftFistCollisionBox->OnComponentHit.AddDynamic(this, &APunchKick01Character::OnAttackHit);
+	RightFistCollisionBox->OnComponentHit.AddDynamic(this, &APunchKick01Character::OnAttackHit);
+
+	LeftFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapBegin);
+	LeftFistCollisionBox->OnComponentEndOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapEnd);
+
+	RightFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapBegin);
+	RightFistCollisionBox->OnComponentEndOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapEnd);
+
+
 
 }
 
@@ -191,7 +204,12 @@ void APunchKick01Character::AttackStart()
 	Log(ELogLevel::INFO, __FUNCTION__);
 
 	LeftFistCollisionBox->SetCollisionProfileName("Weapon");
+	LeftFistCollisionBox->SetNotifyRigidBodyCollision(true);
+	LeftFistCollisionBox->SetGenerateOverlapEvents(true);
+
 	RightFistCollisionBox->SetCollisionProfileName("Weapon");
+	RightFistCollisionBox->SetNotifyRigidBodyCollision(true);
+	RightFistCollisionBox->SetGenerateOverlapEvents(true);
 }
 
 void APunchKick01Character::AttackEnd()
@@ -199,8 +217,27 @@ void APunchKick01Character::AttackEnd()
 	Log(ELogLevel::INFO, __FUNCTION__);
 
 	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
-	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+	LeftFistCollisionBox->SetNotifyRigidBodyCollision(false);
+	LeftFistCollisionBox->SetGenerateOverlapEvents(false);
 
+	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
+	RightFistCollisionBox->SetNotifyRigidBodyCollision(false);
+	RightFistCollisionBox->SetGenerateOverlapEvents(false);
+}
+
+void APunchKick01Character::OnAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Log(ELogLevel::WARNING, Hit.GetActor()->GetName());
+}
+
+void APunchKick01Character::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Log(ELogLevel::WARNING, __FUNCTION__);
+}
+
+void APunchKick01Character::OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	Log(ELogLevel::WARNING, __FUNCTION__);
 }
 
 void APunchKick01Character::Log(ELogLevel LogLevel, FString Message)
