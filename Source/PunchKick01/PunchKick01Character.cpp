@@ -55,6 +55,18 @@ APunchKick01Character::APunchKick01Character()
 		MeleeFistAttackMontage = MeleeFistAttackMontageObject.Object;
 	}
 
+	// load sound cue.
+	static ConstructorHelpers::FObjectFinder<USoundCue> PunchSoundCueObject(TEXT("SoundCue'/Game/TUTORIAL_RESOURCES/Audio/punch_01_Cue.punch_01_Cue'"));
+	if (PunchSoundCueObject.Succeeded())
+	{
+		PunchSoundCue = PunchSoundCueObject.Object;
+
+		PunchAudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("PunchAudioComponent"));
+		PunchAudioComponent->SetupAttachment(RootComponent);
+
+	}
+
+
 	LeftFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftFistCollisionBox"));
 	LeftFistCollisionBox->SetupAttachment(RootComponent);
 	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
@@ -83,11 +95,16 @@ void APunchKick01Character::BeginPlay()
 	LeftFistCollisionBox->OnComponentHit.AddDynamic(this, &APunchKick01Character::OnAttackHit);
 	RightFistCollisionBox->OnComponentHit.AddDynamic(this, &APunchKick01Character::OnAttackHit);
 
-	LeftFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapBegin);
+	if (PunchAudioComponent && PunchSoundCue) {
+		PunchAudioComponent->SetSound(PunchSoundCue);
+	}
+
+
+	/*LeftFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapBegin);
 	LeftFistCollisionBox->OnComponentEndOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapEnd);
 
 	RightFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapBegin);
-	RightFistCollisionBox->OnComponentEndOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapEnd);
+	RightFistCollisionBox->OnComponentEndOverlap.AddDynamic(this, &APunchKick01Character::OnAttackOverlapEnd);**/
 
 
 
@@ -205,11 +222,11 @@ void APunchKick01Character::AttackStart()
 
 	LeftFistCollisionBox->SetCollisionProfileName("Weapon");
 	LeftFistCollisionBox->SetNotifyRigidBodyCollision(true);
-	LeftFistCollisionBox->SetGenerateOverlapEvents(true);
+	//LeftFistCollisionBox->SetGenerateOverlapEvents(true);
 
 	RightFistCollisionBox->SetCollisionProfileName("Weapon");
 	RightFistCollisionBox->SetNotifyRigidBodyCollision(true);
-	RightFistCollisionBox->SetGenerateOverlapEvents(true);
+	//RightFistCollisionBox->SetGenerateOverlapEvents(true);
 }
 
 void APunchKick01Character::AttackEnd()
@@ -218,19 +235,25 @@ void APunchKick01Character::AttackEnd()
 
 	LeftFistCollisionBox->SetCollisionProfileName("NoCollision");
 	LeftFistCollisionBox->SetNotifyRigidBodyCollision(false);
-	LeftFistCollisionBox->SetGenerateOverlapEvents(false);
+	//LeftFistCollisionBox->SetGenerateOverlapEvents(false);
 
 	RightFistCollisionBox->SetCollisionProfileName("NoCollision");
 	RightFistCollisionBox->SetNotifyRigidBodyCollision(false);
-	RightFistCollisionBox->SetGenerateOverlapEvents(false);
+	//RightFistCollisionBox->SetGenerateOverlapEvents(false);
 }
 
 void APunchKick01Character::OnAttackHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
 	Log(ELogLevel::WARNING, Hit.GetActor()->GetName());
+
+
+	if (PunchAudioComponent && PunchSoundCue)
+	{
+		PunchAudioComponent->Play(0.f);
+	}
 }
 
-void APunchKick01Character::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+/*void APunchKick01Character::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	Log(ELogLevel::WARNING, __FUNCTION__);
 }
@@ -238,7 +261,7 @@ void APunchKick01Character::OnAttackOverlapBegin(UPrimitiveComponent* Overlapped
 void APunchKick01Character::OnAttackOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	Log(ELogLevel::WARNING, __FUNCTION__);
-}
+}**/
 
 void APunchKick01Character::Log(ELogLevel LogLevel, FString Message)
 {
